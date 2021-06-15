@@ -19,4 +19,3 @@ Route::post('/add-contact', 'HomeController@addContact')->name('add-contact');
 Route::post('/edit-contact', 'HomeController@editContact')->name('edit-contact');
 Route::post('/delete-contact/{id}', 'HomeController@deleteContact')->name('delete-contact');
 Route::get('/live_search/action', 'HomeController@action')->name('live_search.action');
-Route::get('/pagination/fetch_data', 'PaginationController@fetch_data');
