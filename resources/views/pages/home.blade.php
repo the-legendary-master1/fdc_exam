@@ -27,25 +27,13 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach ($contacts as $item)
-                                <tr>
-                                    <td class="text-center">{{ $item->name }}</td>
-                                    <td class="text-center">{{ $item->company }}</td>
-                                    <td class="text-center">{{ $item->phone }}</td>
-                                    <td class="text-center">{{ $item->email }}</td>
-                                    <td class="text-center">
-                                        <div class="btn-group" >
-                                            <button type="button" class="btn btn-primary edit_contact" data-contact="{{ $item }}">Edit</button>
-                                            <button type="button" class="btn btn-danger delete_contact" data-contact="{{ $item->id }}">Delete</button>
-                                        </div>
-                                    </td>
-                                </tr>
-                            @endforeach
+                            @include('pages.search_data')
                         </tbody>
                     </table>
-                    <div class="d-flex justify-content-center">
+                    <input type="hidden" name="hidden_page" id="hidden_page" value="1"/>
+{{--                     <div class="d-flex justify-content-center">
                         {{ $contacts->links() }}
-                    </div>
+                    </div> --}}
                 </div>
             </div>
         </div>
@@ -168,26 +156,31 @@
 
     })
 
-    if($('#search').val() != "") {
-        fetch_customer_data();
-    }
-    
-
-    function fetch_customer_data(query = '') {
+    function fetch_data(page, query) {
         $.ajax({
-            url:"{{ url('live_search/action') }}",
-            method:'GET',
-            data:{query:query},
-            dataType:'json',
+            url:"{{ url('search') }}?page="+page+"&query="+query,
             success:function(data) {
-              $('tbody').html(data.table_data);
+                $('tbody').html('');
+                $('tbody').html(data);
             }
         })
     }
-    
+
     $(document).on('keyup', '#search', function(){
-        var query = $(this).val();
-        fetch_customer_data(query);
+        var query = $('#search').val();
+        var page = $('#hidden_page').val();
+        fetch_data(page, query);
+    });
+
+    $(document).on('click', '.pagination a', function(event) {
+        event.preventDefault();
+        var page = $(this).attr('href').split('page=')[1];
+        $('#hidden_page').val(page);
+        var query = $('#search').val();
+    
+        $('li').removeClass('active');
+        $(this).parent().addClass('active');
+        fetch_data(page, query);
     });
 </script>
 @endsection

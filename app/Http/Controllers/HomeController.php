@@ -57,54 +57,25 @@ class HomeController extends Controller
         return response()->json(['message' => 'Success']);
     }
 
-    function action(Request $request)
+    function search(Request $request)
     {
         if($request->ajax()) {
-            $output = '';
             $query = $request->get('query');
-
+            $query = str_replace(" ", "%", $query);
+            
             if($query != '') {
-                $data = Contact::where('name', 'like', '%'.$query.'%')
+                $contacts = Contact::where('name', 'like', '%'.$query.'%')
                     ->orWhere('company', 'like', '%'.$query.'%')
                     ->orWhere('phone', 'like', '%'.$query.'%')
                     ->orWhere('email', 'like', '%'.$query.'%')
-                    ->paginate(5);
+                    ->orderby('id', 'desc')->paginate(5);
              
             } else {
-               $data = Contact::orderby('id', 'desc')->paginate(5);
+               $contacts = Contact::orderby('id', 'desc')->paginate(5);
             }
 
-            $total_row = $data->count();
-            if($total_row > 0) {
-                foreach($data as $row) {
-                    $output .= '
-                    <tr>
-                        <td>'.$row->name.'</td>
-                        <td>'.$row->company.'</td>
-                        <td>'.$row->phone.'</td>
-                        <td>'.$row->email.'</td>
-                        <td class="text-center">
-                            <div class="btn-group" >
-                                <button type="button" class="btn btn-primary edit_contact" data-contact="'.$row.'">Edit</button>
-                                <button type="button" class="btn btn-danger delete_contact" data-contact="'.$row->id.'">Delete</button>
-                            </div>
-                        </td>
-                    </tr>
-                    ';
-                }
-            } else {
-                $output = '
-                <tr>
-                 <td align="center" colspan="4">No Data Found</td>
-                </tr>
-                ';
-            }
 
-            $data = array(
-             'table_data'  => $output,
-            );
-
-            echo json_encode($data);
+            return view('pages.search_data', compact('contacts'))->render();
         }
     }
 }
